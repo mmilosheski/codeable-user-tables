@@ -9,7 +9,7 @@ $(document).ready(function() {
                 this.api().columns(2).every( function () {
                     var column = this;
                     var select = $('<select><option value=""></option></select>')
-                        .appendTo( $(column.footer()).empty() )
+                        .appendTo( $(column.header()).empty() )
                         .on( 'change', function () {
                             var val = $.fn.dataTable.util.escapeRegex(
                                 $(this).val()
