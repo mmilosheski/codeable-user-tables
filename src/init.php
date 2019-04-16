@@ -110,14 +110,20 @@ class Codeable_Users_Table {
 	* Enqueue the static assets front-end (js/css)
 	*/
 	public function enqueue_front_assets() {
-		// jquery is dependency
-		wp_enqueue_script( 'jquery' );
-		wp_enqueue_script( 'front-script', $this->plugin_dir . 'assets/js/front-script.js', [ 'jquery' ], '1.0', true );
-		wp_localize_script( 'front-script', 'ajax_url', admin_url( 'admin-ajax.php?action=codeable_users_table_datatables' ) );
-		wp_register_script( 'datatables', $this->plugin_dir . 'assets/js/jquery.dataTables.min.js', [ 'jquery', 'front-script' ], '1.0', true );
-		wp_enqueue_script( 'datatables' );
-		wp_register_style( 'datatables_style', $this->plugin_dir . 'assets/css/jquery.dataTables.min.css' );
-		wp_enqueue_style( 'datatables_style');
+		global $post;
+		if( is_a( $post, 'WP_Post' ) && has_shortcode( $post->post_content, 'codeable_users_table' ) ) {
+			// jquery is dependency
+			wp_enqueue_script( 'jquery' );
+			wp_enqueue_script( 'front-script', $this->plugin_dir . 'assets/js/front-script.js', [ 'jquery' ], '1.0', true );
+			wp_localize_script( 'front-script', 'ajax_url', admin_url( 'admin-ajax.php?action=codeable_users_table_datatables' ) );
+			wp_register_script( 'datatables', $this->plugin_dir . 'assets/js/jquery.dataTables.min.js', [
+				'jquery',
+				'front-script'
+			], '1.0', true );
+			wp_enqueue_script( 'datatables' );
+			wp_register_style( 'datatables_style', $this->plugin_dir . 'assets/css/jquery.dataTables.min.css' );
+			wp_enqueue_style( 'datatables_style' );
+		}
 	}
 
 	/**
