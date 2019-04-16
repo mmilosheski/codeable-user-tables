@@ -23,7 +23,7 @@ class Codeable_Users_Table {
 		$this->plugin_path = plugin_dir_path( dirname(__FILE__) );
 
 		// load text domains
-		add_action('init', 'codeable_users_table_load_plugin_textdomain');
+		add_action( 'init', [ $this, 'codeable_users_table_load_plugin_textdomain' ] );
 
 		// register shortcode
 		add_shortcode( 'codeable_users_table', [ $this, 'codeable_users_table_shortcode' ] );
