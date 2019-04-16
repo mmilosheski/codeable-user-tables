@@ -1,12 +1,14 @@
 $ = jQuery;
 $(document).ready(function() {
-    $('#codeable_users_table').dataTable(
+    var table = $('#codeable_users_table').DataTable(
         {
             "processing": true,
             "serverSide": true,
+            "ordering": true,
             "ajax": ajax_url,
             "initComplete": function () {
                 this.api().columns(2).every( function () {
+                    var table = $('#codeable_users_table select');
                     var column = this;
                     var select = $('<select><option value="">-- Select role ---</option></select>')
                         .appendTo( $(column.header()).empty() )
@@ -30,4 +32,9 @@ $(document).ready(function() {
             } ]
         }
     );
+    $('#codeable_users_table').on('change', function(e){
+        e.preventDefault();
+        table
+            .order( [ 0, 'asc' ])
+            .draw();    })
 } );
