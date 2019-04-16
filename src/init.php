@@ -133,7 +133,11 @@ class Codeable_Users_Table {
      */
 	public function codeable_users_table_shortcode( $atts, $content = null ) {
 		ob_start();
-		include( $this->plugin_path . 'views/front/codeable-user-tables.php' );
+		if ( current_user_can( 'install_plugins' ) ) {
+			include( $this->plugin_path . 'views/front/codeable-user-tables.php' );
+		} else {
+			echo __( 'You\'re not authorized to see the content', 'codeable-user-tables' );
+		}
 		return ob_get_clean();
 	}
 
@@ -162,6 +166,10 @@ class Codeable_Users_Table {
             'number' => intval( $request['length'] ),
 			'offset' => intval( $request['start'] ),
 		];
+
+		if ( isset( $request['columns'][2]['search']['value'] ) && '' !== $request['columns'][2]['search']['value'] ) {
+			$args['role__in'] = [ str_replace( [ '^', '$' ], '', $request['columns'][2]['search']['value'] ) ];
+		}
 
 		if ( $request['order'][0]['column'] == 2 ) {
 
