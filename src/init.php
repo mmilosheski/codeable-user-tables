@@ -168,7 +168,7 @@ class Codeable_Users_Table {
 		];
 
 		if ( isset( $request['columns'][2]['search']['value'] ) && '' !== $request['columns'][2]['search']['value'] ) {
-			$args['role__in'] = [ str_replace( [ '^', '$' ], '', $request['columns'][2]['search']['value'] ) ];
+			$args['role__in'] = [ $request['columns'][2]['search']['value'] ];
 		}
 
 		if ( $request['order'][0]['column'] == 2 ) {

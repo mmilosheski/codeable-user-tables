@@ -8,7 +8,7 @@ $(document).ready(function() {
             "initComplete": function () {
                 this.api().columns(2).every( function () {
                     var column = this;
-                    var select = $('<select><option value=""></option></select>')
+                    var select = $('<select><option value="">-- Select role ---</option></select>')
                         .appendTo( $(column.header()).empty() )
                         .on( 'change', function () {
                             var val = $.fn.dataTable.util.escapeRegex(
@@ -16,14 +16,18 @@ $(document).ready(function() {
                             );
 
                             column
-                                .search( val ? '^'+val+'$' : '', true, false )
+                                .search( val ? val : '', true, false )
                                 .draw();
                         } );
                     column.data().unique().sort().each( function ( d, j ) {
                         select.append( '<option value="'+d+'">'+d+'</option>' )
                     } );
                 } );
-            }
+            },
+            "columnDefs": [ {
+                "targets": 'no-sort',
+                "orderable": false,
+            } ]
         }
     );
 } );
