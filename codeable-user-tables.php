@@ -14,4 +14,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit();
 }
 
+if ( ! defined( 'PLUGIN_FILE_URL' ) ) {
+	define( 'PLUGIN_FILE_URL', __FILE__ );
+}
+
 require_once plugin_dir_path( __FILE__ ) . 'src/init.php';

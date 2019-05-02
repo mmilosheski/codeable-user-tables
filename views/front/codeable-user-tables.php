@@ -7,3 +7,6 @@
     </tr>
     </thead>
 </table>
+<script>
+	var roles_data = <?php $roles = $this->get_all_roles(); echo json_encode( $roles->get_names() ); ?>;
+</script>

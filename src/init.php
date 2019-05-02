@@ -6,10 +6,10 @@ if ( !defined( 'ABSPATH' ) ) {
 	exit();
 }
 
-add_action( 'plugins_loaded', [ Codeable_Users_Table::get_instance(), 'codeable_users_table_load_plugin_textdomain' ] );
+add_action( 'plugins_loaded', [ 'Codeable_Users_Table', 'codeable_users_table_load_plugin_textdomain' ] );
 
-register_activation_hook( __FILE__, [ Codeable_Users_Table::get_instance(), 'plugin_activated' ] );
-register_deactivation_hook( __FILE__, [ Codeable_Users_Table::get_instance(), 'plugin_deactivated' ] );
+register_activation_hook( PLUGIN_FILE_URL, [ 'Codeable_Users_Table', 'plugin_activated' ] );
+register_deactivation_hook( PLUGIN_FILE_URL, [ 'Codeable_Users_Table', 'plugin_deactivated' ] );
 
 class Codeable_Users_Table {
 
@@ -24,7 +24,6 @@ class Codeable_Users_Table {
 
 		// load text domains
 		add_action( 'init', [ $this, 'codeable_users_table_load_plugin_textdomain' ] );
-
 		// register shortcode
 		add_shortcode( 'codeable_users_table', [ $this, 'codeable_users_table_shortcode' ] );
 		//enqueue front assets
@@ -34,7 +33,6 @@ class Codeable_Users_Table {
 		add_action( 'wp_ajax_nopriv_codeable_users_table_datatables', [ $this, 'codeable_users_table_datatables_callback' ] );
 		// add additional filter column for users
 		add_filter( 'user_search_columns', [ $this, 'filter_function_name' ], 10, 3 );
-
 	}
 
 	public static function get_instance() {
@@ -45,7 +43,7 @@ class Codeable_Users_Table {
 		return self::$instance;
 	}
 
-	function codeable_users_table_load_plugin_textdomain() {
+	public static function codeable_users_table_load_plugin_textdomain() {
 		load_plugin_textdomain( 'codeable-user-tables', FALSE, basename( dirname( __FILE__ ) ) . '/languages/' );
 	}
 
@@ -59,7 +57,7 @@ class Codeable_Users_Table {
 		// define page array
 		$page_definitions = [
 			'codeable-users-table-shortcode-page' => [
-				'title' => __( 'codeable-users-table-shortcode-page', 'codeable-user-tables' ),
+				'title' => __( 'Codeable Users Table Shortcode Page', 'codeable-user-tables' ),
 				'content' => '[codeable_users_table]'
 			],
 		];
@@ -67,13 +65,14 @@ class Codeable_Users_Table {
 		foreach ( $page_definitions as $slug => $page ) {
 			// Check that the page doesn't exist already
 			$query = new WP_Query( 'pagename=' . $slug );
+			
 			if ( ! $query->have_posts() ) {
 				// Add the page using the data from the array above
 				wp_insert_post(
 					[
 						'post_content'   => $page['content'],
-						'post_name'      => $slug,
-						'post_title'     => $page['title'],
+                        'post_name'      => $slug,
+                        'post_title'     => $page['title'],
 						'post_status'    => 'publish',
 						'post_type'      => 'page',
 						'ping_status'    => 'closed',
@@ -94,14 +93,15 @@ class Codeable_Users_Table {
 		// define page array
 		$page_definitions = [
 			'codeable-users-table-shortcode-page' => [
-				'title' => __( 'codeable-users-table-shortcode-page', 'codeable-user-tables' ),
+				'title' => __( 'Codeable Users Table Shortcode Page', 'codeable-user-tables' ),
 				'content' => '[codeable_users_table]'
 			],
 		];
 
 		foreach ( $page_definitions as $slug => $page ) {
 			// remove all the data we created
-			wp_delete_post( get_page_by_path( $slug ), true );
+			$page = get_page_by_path( $slug, OBJECT, 'page' );
+			wp_delete_post( $page->ID, true );
 		}
 
 	}
@@ -115,7 +115,7 @@ class Codeable_Users_Table {
 			// jquery is dependency
 			wp_enqueue_script( 'jquery' );
 			wp_enqueue_script( 'front-script', $this->plugin_dir . 'assets/js/front-script.js', [ 'jquery' ], '1.0', true );
-			wp_localize_script( 'front-script', 'ajax_url', admin_url( 'admin-ajax.php?action=codeable_users_table_datatables' ) );
+			wp_localize_script( 'front-script', 'ajax_url', admin_url( 'admin-ajax.php?action=codeable_users_table_datatables&security_nonce=' . wp_create_nonce('table-ajax-nonce') ) );
 			wp_register_script( 'datatables', $this->plugin_dir . 'assets/js/jquery.dataTables.min.js', [
 				'jquery',
 				'front-script'
@@ -133,10 +133,10 @@ class Codeable_Users_Table {
      */
 	public function codeable_users_table_shortcode( $atts, $content = null ) {
 		ob_start();
-		if ( current_user_can( 'install_plugins' ) ) {
+		if ( current_user_can( 'manage_options' ) ) {
 			include( $this->plugin_path . 'views/front/codeable-user-tables.php' );
 		} else {
-			echo __( 'You\'re not authorized to see the content', 'codeable-user-tables' );
+			return __( 'You\'re not authorized to see the content', 'codeable-user-tables' );
 		}
 		return ob_get_clean();
 	}
@@ -150,6 +150,11 @@ class Codeable_Users_Table {
 		header("Content-Type: application/json");
 
 		$request= $_REQUEST;
+
+		// Check for nonce security
+	    if ( ! wp_verify_nonce( $request['security_nonce'], 'table-ajax-nonce' ) ) {
+	    	return;
+		}
 
 		$columns = [
 			0 => 'user_login',
@@ -237,4 +242,16 @@ class Codeable_Users_Table {
 		return $search_columns;
 	}
 
+	public function get_all_roles() {
+		global $wp_roles;
+
+		if ( ! isset( $wp_roles ) ) {
+		    $wp_roles = new WP_Roles();
+		}
+
+		// return $wp_roles->get_names();
+		return $wp_roles;
+	}
 }
+
+new Codeable_Users_Table();
