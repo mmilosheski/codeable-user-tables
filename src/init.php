@@ -222,8 +222,11 @@ class Codeable_Users_Table {
 			echo wp_json_encode( $json_data );
 		} else {
 
-			$json_data = [
-				"data" => []
+			$json_data = [ 
+				'draw' => intval( $request['draw'] ),
+				'recordsTotal' => 0,
+				'recordsFiltered' => 0,
+				'data' => [],
 			];
 
 			echo wp_json_encode( $json_data );
