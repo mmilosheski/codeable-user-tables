@@ -20,11 +20,9 @@ $(document).ready(function() {
                                 .search( val ? val : '', true, false )
                                 .draw();
                         } );
-                    column.data().unique().sort().each( function ( d, j ) {
                         for (let [key, value] of Object.entries(roles_data)) {
                             select.append( '<option value="'+key+'">'+value+'</option>' )
                         }
-                    } );
                 } );
             },
             "columnDefs": [ {
