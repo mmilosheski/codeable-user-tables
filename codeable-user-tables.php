@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Codeable User Tables
  * Plugin URI: https://www.agorawebdesigns.com/
- * Version: 0.0.1
+ * Version: 0.0.2
  * Description: Registers shortcode [codeable_users_table] for displaying sortable table of users with multiple options to sort
  * Author: Agora Web Designs Studio
  * Author URI: https://www.agorawebdesigns.com/
